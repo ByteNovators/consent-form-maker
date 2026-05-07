@@ -239,27 +239,34 @@ export default function App() {
                 </div>
             </div>
 
-            {/* ── Print/Preview Area ── */}
-            {persons.length > 0 && (
-                <div
-                    ref={printRef}
-                    id="preview-anchor"
-                    style={{ paddingTop: 20 }}
-                >
-                    {displayedPersons.map((person, i) => (
-                        <div
-                            key={i}
-                            className={
-                                i < displayedPersons.length - 1
-                                    ? "page-break"
-                                    : ""
-                            }
-                        >
-                            <ConsentForm person={person} event={event} />
-                        </div>
-                    ))}
-                </div>
-            )}
+            <div
+                style={{
+                    height: "100vh",
+                    overflow: "auto",
+                }}
+            >
+                {/* ── Print/Preview Area ── */}
+                {persons.length > 0 && (
+                    <div
+                        ref={printRef}
+                        id="preview-anchor"
+                        style={{ paddingTop: 20 }}
+                    >
+                        {displayedPersons.map((person, i) => (
+                            <div
+                                key={i}
+                                className={
+                                    i < displayedPersons.length - 1
+                                        ? "page-break"
+                                        : ""
+                                }
+                            >
+                                <ConsentForm person={person} event={event} />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
