@@ -4,7 +4,7 @@ export default function ParticipantList({ persons, event }) {
             style={{
                 width: "210mm",
                 margin: "0 auto",
-                padding: "10mm",
+                padding: "6mm",
                 fontFamily: "DM Mono",
                 fontSize: "9pt",
             }}
@@ -13,8 +13,9 @@ export default function ParticipantList({ persons, event }) {
                 style={{
                     display: "flex",
                     alignItems: "center",
+                    justifyContent: "center",
                     gap: "14px",
-                    marginBottom: "8px",
+                    margin: "8px",
                 }}
             >
                 <img
@@ -28,11 +29,7 @@ export default function ParticipantList({ persons, event }) {
                     }}
                 />
 
-                <div
-                    style={{
-                        flex: 1,
-                    }}
-                >
+                <div>
                     <div
                         style={{
                             fontSize: "16pt",
@@ -75,7 +72,7 @@ export default function ParticipantList({ persons, event }) {
                                             ? "200px"
                                             : h != "#"
                                               ? "120px"
-                                              : "",
+                                              : "0",
                                     textAlign: "left",
                                     fontSize: "8pt",
                                 }}
