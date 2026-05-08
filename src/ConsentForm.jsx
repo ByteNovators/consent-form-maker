@@ -39,7 +39,7 @@ const styles = {
     logoPlaceholder: {
         width: "64px",
         height: "64px",
-        border: "2px solid #4285F4",
+        border: "2px solid black",
         borderRadius: "4px",
         display: "flex",
         alignItems: "center",
@@ -55,7 +55,7 @@ const styles = {
     orgName: {
         fontSize: "16pt",
         fontWeight: "bold",
-        color: "#4285F4",
+        color: "black",
         letterSpacing: "0.5px",
     },
     orgSub: {
@@ -70,7 +70,7 @@ const styles = {
         textTransform: "uppercase",
         letterSpacing: "1px",
         margin: "24px 0",
-        color: "#4285F4",
+        color: "black",
         textDecoration: "underline",
     },
     sectionTitle: {
@@ -118,7 +118,7 @@ const styles = {
     },
     clauseNum: {
         fontWeight: "bold",
-        color: "#4285F4",
+        color: "black",
         minWidth: "20px",
     },
     signatureSection: {
@@ -131,7 +131,8 @@ const styles = {
         marginTop: "8px",
     },
     sigBox: {
-        flex: 1,
+        marginLeft: "auto",
+        width: "200px",
         textAlign: "center",
     },
     sigLine: {
@@ -165,7 +166,7 @@ export default function ConsentForm({ person, event }) {
             {/* Header */}
             <div style={styles.header}>
                 <img
-                    src="src/brand.png"
+                    src="/brand.png"
                     alt="Trek De Kashmir logo"
                     style={styles.logo}
                 />
@@ -249,14 +250,6 @@ export default function ConsentForm({ person, event }) {
                     <div style={styles.sigBox}>
                         <div style={styles.sigLine}></div>
                         <div style={styles.sigLabel}>Participant Signature</div>
-                    </div>
-                    <div style={styles.sigBox}>
-                        <div style={styles.sigLine}></div>
-                        <div style={styles.sigLabel}>Date</div>
-                    </div>
-                    <div style={styles.sigBox}>
-                        <div style={styles.sigLine}></div>
-                        <div style={styles.sigLabel}>Trek Leader / Witness</div>
                     </div>
                 </div>
             </div>

@@ -18,7 +18,7 @@ export default function ParticipantList({ persons, event }) {
                 }}
             >
                 <img
-                    src="src/brand.png"
+                    src="/brand.png"
                     alt="Trek De Kashmir logo"
                     style={{
                         width: "45px",
@@ -37,7 +37,7 @@ export default function ParticipantList({ persons, event }) {
                         style={{
                             fontSize: "16pt",
                             fontWeight: "bold",
-                            color: "#4285F4",
+                            color: "black",
                             letterSpacing: "0.5px",
                         }}
                     >
@@ -61,7 +61,7 @@ export default function ParticipantList({ persons, event }) {
                             "#",
                             "Name",
                             "Phone",
-                            "Parentage",
+                            "Emergency Contact",
                             "Address",
                             "Pickup Point",
                         ].map((h) => (
@@ -70,6 +70,12 @@ export default function ParticipantList({ persons, event }) {
                                 style={{
                                     border: "1px solid #ccc",
                                     padding: "4px 6px",
+                                    width:
+                                        h == "Address"
+                                            ? "200px"
+                                            : h != "#"
+                                              ? "120px"
+                                              : "",
                                     textAlign: "left",
                                     fontSize: "8pt",
                                 }}
@@ -86,7 +92,7 @@ export default function ParticipantList({ persons, event }) {
                                 i + 1,
                                 p.name,
                                 p.contact,
-                                p.parentage,
+                                p.emergencyContactNumber,
                                 p.address,
                                 p.pickupPoint,
                             ].map((val, j) => (
@@ -98,7 +104,7 @@ export default function ParticipantList({ persons, event }) {
                                         fontSize: "8pt",
                                     }}
                                 >
-                                    {val || "—"}
+                                    {val || " "}
                                 </td>
                             ))}
                         </tr>
