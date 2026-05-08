@@ -1,400 +1,356 @@
-import React, { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import Papa from "papaparse";
 import ConsentForm from "./ConsentForm.jsx";
+import ParticipantList from "./ParticipantList.jsx";
 import { mapHeaders, rowToPerson } from "./csvMapper.js";
 
-const SAMPLE_CSV = `name,parentage,contact,address,DOB,emergency contact name,relation with emergency contact,emergency contact address,aadhaar number
-Ali Hassan,Mohammad Hassan,9876543210,"House 12 Lal Chowk Srinagar",1998-05-14,Fatima Hassan,Mother,"House 12 Lal Chowk Srinagar",1234 5678 9012
-Sara Khan,Abdul Khan,9123456780,"Lane 3 Sopore",2000-11-22,Rashid Khan,Father,"Lane 3 Sopore",9876 5432 1098`;
+function buildPages(persons, event) {
+    return [
+        { type: "list", persons, event },
+        ...persons.map((p) => ({ type: "consent", person: p, event })),
+    ];
+}
 
-export default function App() {
-    const [persons, setPersons] = useState([]);
-    const [event, setEvent] = useState("");
-    const [logoSrc, setLogoSrc] = useState(null);
-    const [error, setError] = useState("");
-    const [activePerson, setActive] = useState(null); // null = show all
-    const [parseInfo, setParseInfo] = useState("");
-    const printRef = useRef();
+function printNode(node) {
+    // antipattern: iframe is unnecessary but oh wth
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText =
+        "position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:0";
+    document.body.appendChild(iframe);
+    const win = iframe.contentWindow;
+    win.document.open();
+    win.document.write(`
+    <!DOCTYPE html><html><head>
+      <link rel="preconnect" href="https://fonts.googleapis.com"/>
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet"/>
+      <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{background:#fff;font-family:'DM Mono',monospace;font-size:9pt}
+        @page{size:A4;margin:0}
+        @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+      </style>
+    </head><body>${node.outerHTML}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => {
+        win.print();
+        setTimeout(() => document.body.removeChild(iframe), 1000);
+    }, 400);
+}
 
-    const handleCSV = useCallback((file) => {
-        setError("");
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: true,
-            complete: ({ data, meta }) => {
-                if (!data.length) {
-                    setError("CSV is empty.");
-                    return;
-                }
-                const mapping = mapHeaders(meta.fields);
-                const missingRequired = ["name"].filter((k) => !mapping[k]);
-                if (missingRequired.length) {
-                    setError(
-                        `Could not find required column(s): ${missingRequired.join(", ")}. Check column headers.`,
-                    );
-                    return;
-                }
-                const parsed = data.map((row) => rowToPerson(row, mapping));
-                setPersons(parsed);
-                setActive(null);
-                setParseInfo(
-                    `${parsed.length} participant${parsed.length !== 1 ? "s" : ""} loaded from "${file.name}"`,
-                );
-            },
-            error: (err) => setError(`Parse error: ${err.message}`),
-        });
-    }, []);
-
-    const handleFileChange = (e) => {
-        const f = e.target.files[0];
-        if (f) handleCSV(f);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const f = e.dataTransfer.files[0];
-        if (f && f.name.endsWith(".csv")) handleCSV(f);
-    };
-
-    const handleLogo = (e) => {
-        const f = e.target.files[0];
-        if (!f) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => setLogoSrc(ev.target.result);
-        reader.readAsDataURL(f);
-    };
-
-    const printAll = () => {
-        setActive(null);
-        setTimeout(() => window.print(), 150);
-    };
-
-    const printOne = (idx) => {
-        setActive(idx);
-        setTimeout(() => window.print(), 150);
-    };
-
-    const handleEventNameChange = (e) => {
-        setEvent(e.target.value);
-    };
-
-    const displayedPersons =
-        activePerson === null ? persons : [persons[activePerson]];
-
+function SidebarParticipant({ person, index, isActive, onPreview, onPrint }) {
     return (
         <div
-            style={{
-                display: "flex",
-            }}
+            className={`sidebar-participant ${isActive ? "active" : ""}`}
+            onClick={onPreview}
         >
-            {/* ── Control Panel ── */}
-            <div className="no-print" style={panelStyle}>
-                <div style={{ maxWidth: 860, margin: "0 auto" }}>
-                    <h1 style={h1Style}>
-                        Trek De Kashmir · Consent Form Generator
-                    </h1>
-                    <div style={rowStyle}>
-                        {/* CSV Upload */}
-                        <div
-                            style={dropzoneStyle}
-                            onDrop={handleDrop}
-                            onDragOver={(e) => e.preventDefault()}
-                        >
-                            <label style={labelStyle}>
-                                📄 Upload CSV
-                                <input
-                                    type="file"
-                                    accept=".csv"
-                                    onChange={handleFileChange}
-                                    style={{ display: "none" }}
-                                />
-                            </label>
-                            <span style={{ fontSize: "12px", color: "#666" }}>
-                                or drag & drop
-                            </span>
-                        </div>
-                        {/* Logo Upload */}
-                        {/* <div style={dropzoneStyle}>
-                            <label style={labelStyle}>
-                                🖼 Upload Logo
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleLogo}
-                                    style={{ display: "none" }}
-                                />
-                            </label>
-                            {logoSrc && (
-                                <span
-                                    style={{
-                                        fontSize: "12px",
-                                        color: "#174EA6",
-                                    }}
-                                >
-                                    ✓ Logo loaded
-                                </span>
-                            )}
-                        </div> */}
-                    </div>
-                    {error && <div style={errorStyle}>{error}</div>}
-                    {parseInfo && !error && (
-                        <div style={infoStyle}>{parseInfo}</div>
-                    )}
-
-                    <input
-                        style={eventStyle}
-                        type="text"
-                        placeholder="Event Name and Date"
-                        onChange={handleEventNameChange}
-                    />
-                    {/* Sample CSV hint */}
-                    <details style={{ marginTop: 10 }}>
-                        <summary
-                            style={{
-                                cursor: "pointer",
-                                fontSize: "12px",
-                                color: "#555",
-                            }}
-                        >
-                            Show expected CSV column headers
-                        </summary>
-                        <pre
-                            style={preStyle}
-                        >{`name, parentage, contact, address, DOB,\nemergency contact name, relation with emergency contact,\nemergency contact address, aadhaar number`}</pre>
-                        <button
-                            style={btnSecondary}
-                            onClick={() => {
-                                const blob = new Blob([SAMPLE_CSV], {
-                                    type: "text/csv",
-                                });
-                                const a = document.createElement("a");
-                                a.href = URL.createObjectURL(blob);
-                                a.download = "sample_participants.csv";
-                                a.click();
-                            }}
-                        >
-                            Download sample CSV
-                        </button>
-                    </details>
-                    {/* Person list + print controls */}
-                    {persons.length > 0 && (
-                        <div style={{ marginTop: 18 }}>
-                            <div style={listHeaderStyle}>
-                                <span style={{ fontWeight: 600 }}>
-                                    Participants ({persons.length})
-                                </span>
-                                <button style={btnPrimary} onClick={printAll}>
-                                    🖨 Print All
-                                </button>
-                            </div>
-                            <div style={listStyle}>
-                                {persons.map((p, i) => (
-                                    <div key={i} style={listItemStyle}>
-                                        <span style={{ flex: 1 }}>
-                                            <strong>
-                                                {p.name || "(no name)"}
-                                            </strong>
-                                            {p.contact && (
-                                                <span
-                                                    style={{
-                                                        color: "#666",
-                                                        marginLeft: 10,
-                                                    }}
-                                                >
-                                                    {p.contact}
-                                                </span>
-                                            )}
-                                        </span>
-                                        <button
-                                            style={btnSmall}
-                                            onClick={() => printOne(i)}
-                                        >
-                                            Print
-                                        </button>
-                                        <button
-                                            style={btnSmallSecondary}
-                                            onClick={() => {
-                                                setActive(i);
-                                                setTimeout(
-                                                    () =>
-                                                        document
-                                                            .getElementById(
-                                                                "preview-anchor",
-                                                            )
-                                                            .scrollIntoView({
-                                                                behavior:
-                                                                    "smooth",
-                                                            }),
-                                                    50,
-                                                );
-                                            }}
-                                        >
-                                            Preview
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+            <div className="sp-index">{String(index + 1).padStart(2, "0")}</div>
+            <div className="sp-info">
+                <div className="sp-name">{person.name || "—"}</div>
+                <div className="sp-sub">
+                    {person.contact || person.pickupPoint || "No contact"}
                 </div>
             </div>
-
-            <div
-                style={{
-                    height: "100vh",
-                    overflow: "auto",
+            <button
+                className="sp-btn"
+                title="Print consent form"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onPrint();
                 }}
             >
-                {/* ── Print/Preview Area ── */}
-                {persons.length > 0 && (
-                    <div
-                        ref={printRef}
-                        id="preview-anchor"
-                        style={{ paddingTop: 20 }}
-                    >
-                        {displayedPersons.map((person, i) => (
-                            <div
-                                key={i}
-                                className={
-                                    i < displayedPersons.length - 1
-                                        ? "page-break"
-                                        : ""
-                                }
-                            >
-                                <ConsentForm person={person} event={event} />
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+                ⎙
+            </button>
         </div>
     );
 }
 
-/* ── Styles ── */
-const panelStyle = {
-    background: "#fff",
-    borderBottom: "1px solid #ddd",
-    padding: "20px 24px",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-};
-const h1Style = {
-    fontSize: "16px",
-    fontWeight: 700,
-    color: "#174EA6",
-    marginBottom: 16,
-};
-const rowStyle = { display: "flex", gap: 16, flexWrap: "wrap" };
-const dropzoneStyle = {
-    border: "2px dashed #bbb",
-    borderRadius: 8,
-    padding: "12px 20px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 4,
-    cursor: "pointer",
-    minWidth: 160,
-};
-const labelStyle = {
-    cursor: "pointer",
-    color: "#174EA6",
-    fontWeight: 600,
-    fontSize: "14px",
-};
+export default function App() {
+    const [persons, setPersons] = useState([]);
+    const [event, setEvent] = useState("");
+    const [search, setSearch] = useState("");
+    const [pageIndex, setPageIndex] = useState(0);
+    const [fileName, setFileName] = useState(null);
+    const fileInputRef = useRef();
+    const previewRef = useRef();
 
-const eventStyle = {
-    color: "#174EA6",
-    border: "2px dashed #bbb",
-    borderRadius: 8,
-    padding: "10px",
-    marginTop: "10px",
-};
-const errorStyle = {
-    marginTop: 10,
-    background: "#fff0f0",
-    border: "1px solid #f00",
-    borderRadius: 6,
-    padding: "8px 12px",
-    color: "#c00",
-    fontSize: "13px",
-};
-const infoStyle = {
-    marginTop: 10,
-    background: "#efffef",
-    border: "1px solid #174EA6",
-    borderRadius: 6,
-    padding: "8px 12px",
-    color: "#174EA6",
-    fontSize: "13px",
-};
-const preStyle = {
-    background: "#f5f5f5",
-    padding: "8px 12px",
-    borderRadius: 4,
-    fontSize: "12px",
-    marginTop: 6,
-    overflowX: "auto",
-};
-const listHeaderStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-};
-const listStyle = {
-    border: "1px solid #ddd",
-    borderRadius: 8,
-    overflow: "hidden",
-    maxHeight: 260,
-    overflowY: "auto",
-};
-const listItemStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    padding: "8px 12px",
-    borderBottom: "1px solid #eee",
-    fontSize: "13px",
-};
-const btnPrimary = {
-    background: "#174EA6",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    padding: "7px 18px",
-    cursor: "pointer",
-    fontWeight: 600,
-    fontSize: "13px",
-};
-const btnSecondary = {
-    background: "#f0f0f0",
-    color: "#333",
-    border: "1px solid #ccc",
-    borderRadius: 6,
-    padding: "5px 14px",
-    cursor: "pointer",
-    fontSize: "12px",
-    marginTop: 6,
-};
-const btnSmall = {
-    background: "#174EA6",
-    color: "#fff",
-    border: "none",
-    borderRadius: 4,
-    padding: "4px 10px",
-    cursor: "pointer",
-    fontSize: "12px",
-};
-const btnSmallSecondary = {
-    background: "#f0f0f0",
-    color: "#333",
-    border: "1px solid #ccc",
-    borderRadius: 4,
-    padding: "4px 10px",
-    cursor: "pointer",
-    fontSize: "12px",
-};
+    const pages = buildPages(persons, event);
+    const totalPages = pages.length;
+
+    const filteredPersons = persons.filter((p) => {
+        const q = search.toLowerCase();
+        return (
+            p.name?.toLowerCase().includes(q) ||
+            p.contact?.toLowerCase().includes(q) ||
+            p.pickupPoint?.toLowerCase().includes(q)
+        );
+    });
+
+    const handleCSV = (file) => {
+        if (!file) return;
+        setFileName(file.name);
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: ({ data, meta }) => {
+                const mapping = mapHeaders(meta.fields || []);
+                setPersons(data.map((r) => rowToPerson(r, mapping)));
+                setPageIndex(0);
+            },
+        });
+    };
+
+    const goTo = (i) => setPageIndex(Math.max(0, Math.min(i, totalPages - 1)));
+
+    const printCurrent = () => {
+        const node = previewRef.current?.querySelector(".printable-page");
+        if (node) printNode(node);
+    };
+
+    const printAll = () => {
+        const iframe = document.createElement("iframe");
+        iframe.style.cssText =
+            "position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:0";
+        document.body.appendChild(iframe);
+        const win = iframe.contentWindow;
+
+        const pagesHtml = pages
+            .map((pg) => {
+                const wrapper = document.createElement("div");
+                wrapper.style.cssText =
+                    "page-break-after:always;break-after:page;";
+                const inner = document.createElement("div");
+                inner.className = "printable-page";
+                // create node as per page in list
+                const node = document.querySelector(
+                    `.page-snapshot[data-idx="${pages.indexOf(pg)}"]`,
+                );
+                return node ? node.outerHTML : "";
+            })
+            .join("");
+
+        win.document.open();
+        win.document.write(`
+      <!DOCTYPE html><html><head>
+        <link rel="preconnect" href="https://fonts.googleapis.com"/>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet"/>
+        <style>
+          *{box-sizing:border-box;margin:0;padding:0}
+          body{background:#fff;font-family:'DM Mono',monospace}
+          @page{size:A4;margin:0}
+          .page-snapshot{page-break-after:always;break-after:page}
+          @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+        </style>
+      </head><body>${pagesHtml}</body></html>`);
+        win.document.close();
+        win.focus();
+        setTimeout(() => {
+            win.print();
+            setTimeout(() => document.body.removeChild(iframe), 1000);
+        }, 600);
+    };
+
+    const currentPage = pages[pageIndex];
+
+    return (
+        <div className="app-shell">
+            <aside className="sidebar">
+                <div className="sidebar-header">
+                    <div className="brand-mark">TDK</div>
+                    <div className="brand-text">
+                        <span className="brand-name">Trek De Kashmir</span>
+                        <span className="brand-sub">Document Generator</span>
+                    </div>
+                </div>
+
+                <div className="sidebar-section">
+                    <label className="field-label">Event Name</label>
+                    <input
+                        className="field-input"
+                        value={event}
+                        onChange={(e) => setEvent(e.target.value)}
+                        placeholder="e.g. Tarsar Marsar 2025"
+                    />
+                </div>
+
+                <div className="sidebar-section">
+                    <label className="field-label">Participants CSV</label>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".csv"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleCSV(e.target.files[0])}
+                    />
+                    <button
+                        className="btn btn-upload"
+                        onClick={() => fileInputRef.current.click()}
+                    >
+                        <span className="btn-icon">↑</span>
+                        {fileName ? fileName : "Upload CSV"}
+                    </button>
+                </div>
+
+                {persons.length > 0 && (
+                    <>
+                        <div className="sidebar-section">
+                            <div className="action-row">
+                                <button
+                                    className="btn btn-action"
+                                    onClick={() => {
+                                        setPageIndex(0);
+                                    }}
+                                >
+                                    ☰ View List
+                                </button>
+                                <button
+                                    className="btn btn-action"
+                                    onClick={printAll}
+                                >
+                                    ⎙ Print All
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="sidebar-section sidebar-search">
+                            <input
+                                className="field-input search-input"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search participants…"
+                            />
+                            <div className="participant-count">
+                                {filteredPersons.length} / {persons.length}{" "}
+                                participants
+                            </div>
+                        </div>
+
+                        <div className="participant-list-scroll">
+                            {filteredPersons.map((p, i) => {
+                                const realIndex = persons.indexOf(p);
+                                const consentPageIndex = realIndex + 1;
+                                return (
+                                    <SidebarParticipant
+                                        key={i}
+                                        person={p}
+                                        index={realIndex}
+                                        isActive={
+                                            pageIndex === consentPageIndex
+                                        }
+                                        onPreview={() =>
+                                            setPageIndex(consentPageIndex)
+                                        }
+                                        onPrint={() => {
+                                            setPageIndex(consentPageIndex);
+                                            setTimeout(() => {
+                                                const node =
+                                                    previewRef.current?.querySelector(
+                                                        ".printable-page",
+                                                    );
+                                                if (node) printNode(node);
+                                            }, 100);
+                                        }}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </>
+                )}
+
+                {persons.length === 0 && (
+                    <div className="empty-state">
+                        <div className="empty-icon">⛰</div>
+                        <p>Upload a CSV to get started</p>
+                    </div>
+                )}
+            </aside>
+
+            <main className="main-view">
+                {persons.length === 0 ? (
+                    <div className="main-empty">
+                        <div className="main-empty-icon">⛰</div>
+                        <h2>No documents yet</h2>
+                        <p>Upload a participant CSV from the sidebar</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* page navigation btns */}
+                        <div className="page-nav no-print">
+                            <button
+                                className="nav-btn"
+                                onClick={() => goTo(pageIndex - 1)}
+                                disabled={pageIndex === 0}
+                            >
+                                ‹ Prev
+                            </button>
+                            <span className="page-indicator">
+                                {pageIndex === 0
+                                    ? "Participant List"
+                                    : `Consent — ${currentPage.person?.name || pageIndex}`}{" "}
+                                <span className="page-fraction">
+                                    ({pageIndex + 1} / {totalPages})
+                                </span>
+                            </span>
+                            <button
+                                className="nav-btn"
+                                onClick={() => goTo(pageIndex + 1)}
+                                disabled={pageIndex === totalPages - 1}
+                            >
+                                Next ›
+                            </button>
+                            <button
+                                className="nav-btn nav-print"
+                                onClick={printCurrent}
+                            >
+                                ⎙ Print
+                            </button>
+                        </div>
+
+                        {/* a4 page preview */}
+                        <div className="page-stage" ref={previewRef}>
+                            <div className="a4-shadow">
+                                <div className="printable-page a4-page">
+                                    {currentPage.type === "list" ? (
+                                        <ParticipantList
+                                            persons={currentPage.persons}
+                                            event={currentPage.event}
+                                        />
+                                    ) : (
+                                        <ConsentForm
+                                            person={currentPage.person}
+                                            event={currentPage.event}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* hide node for bulk print */}
+                        <div style={{ display: "none" }}>
+                            {pages.map((pg, idx) => (
+                                <div
+                                    key={idx}
+                                    className="page-snapshot"
+                                    data-idx={idx}
+                                >
+                                    {pg.type === "list" ? (
+                                        <ParticipantList
+                                            persons={pg.persons}
+                                            event={pg.event}
+                                        />
+                                    ) : (
+                                        <ConsentForm
+                                            person={pg.person}
+                                            event={pg.event}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </main>
+        </div>
+    );
+}

@@ -46,6 +46,7 @@ const FIELD_MAP = {
         "emergency address",
     ],
     aadhaar: ["aadhaar", "aadhar", "aadhaar number", "aadhar number", "uid"],
+    pickupPoint: ["pickup point", "pickup", "pick up", "pick up point"],
 };
 
 function normalise(str) {
@@ -82,5 +83,6 @@ export function rowToPerson(row, mapping) {
         emergencyContactAddress: get("emergencyContactAddress"),
         emergencyContactNumber: get("emergencyContactNumber"),
         aadhaar: get("aadhaar"),
+        pickupPoint: get("pickupPoint"),
     };
 }
