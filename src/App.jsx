@@ -69,6 +69,9 @@ function SidebarParticipant({ person, index, isActive, onPreview, onPrint }) {
 export default function App() {
     const [persons, setPersons] = useState([]);
     const [event, setEvent] = useState("");
+    const [leader, setLeader] = useState("");
+    const [guide1, setGuide1] = useState("");
+    const [guide2, setGuide2] = useState("");
     const [search, setSearch] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
     const [fileName, setFileName] = useState(null);
@@ -190,6 +193,41 @@ export default function App() {
                         <span className="btn-icon">↑</span>
                         {fileName ? fileName : "Upload CSV"}
                     </button>
+                </div>
+
+                <div className="sidebar-section">
+                    <label className="field-label">Trek Leader</label>
+                    <input
+                        className="field-input"
+                        value={leader}
+                        onChange={(e) => setLeader(e.target.value)}
+                        placeholder="e.g. Waris Majeed"
+                    />
+                    <label
+                        className="field-label"
+                        style={{ marginTop: "10px" }}
+                    >
+                        Guide 1
+                    </label>
+                    <input
+                        className="field-input"
+                        value={guide1}
+                        onChange={(e) => setGuide1(e.target.value)}
+                        placeholder="e.g. Abdul Pahaad"
+                    />
+
+                    <label
+                        className="field-label"
+                        style={{ marginTop: "10px" }}
+                    >
+                        Guide 2
+                    </label>
+                    <input
+                        className="field-input"
+                        value={guide2}
+                        onChange={(e) => setGuide2(e.target.value)}
+                        placeholder="e.g. Jungal Gafoor"
+                    />
                 </div>
 
                 {persons.length > 0 && (
@@ -315,6 +353,20 @@ export default function App() {
                                         <ParticipantList
                                             persons={currentPage.persons}
                                             event={currentPage.event}
+                                            team={[
+                                                {
+                                                    role: "Team Leader",
+                                                    name: leader,
+                                                },
+                                                {
+                                                    role: "Guide 1",
+                                                    name: guide1,
+                                                },
+                                                {
+                                                    role: "Guide 2",
+                                                    name: guide2,
+                                                },
+                                            ]}
                                         />
                                     ) : (
                                         <ConsentForm
@@ -338,6 +390,20 @@ export default function App() {
                                         <ParticipantList
                                             persons={pg.persons}
                                             event={pg.event}
+                                            team={[
+                                                {
+                                                    role: "Team Leader",
+                                                    name: leader,
+                                                },
+                                                {
+                                                    role: "Guide 1",
+                                                    name: guide1,
+                                                },
+                                                {
+                                                    role: "Guide 2",
+                                                    name: guide2,
+                                                },
+                                            ]}
                                         />
                                     ) : (
                                         <ConsentForm

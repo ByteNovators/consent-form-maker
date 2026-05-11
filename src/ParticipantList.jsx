@@ -1,4 +1,4 @@
-export default function ParticipantList({ persons, event }) {
+export default function ParticipantList({ persons, event, team }) {
     return (
         <div
             style={{
@@ -108,6 +108,42 @@ export default function ParticipantList({ persons, event }) {
                     ))}
                 </tbody>
             </table>
+
+            {/* Signatures */}
+            <div
+                style={{
+                    marginTop: "50px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "20px",
+                }}
+            >
+                {team.map((p) => (
+                    <div
+                        key={p.role}
+                        style={{
+                            textAlign: "center",
+                            flex: 1,
+                        }}
+                    >
+                        <div
+                            style={{
+                                borderTop: "1px solid #000",
+                                marginBottom: "6px",
+                                width: "100%",
+                            }}
+                        />
+                        <div
+                            style={{
+                                fontSize: "8pt",
+                            }}
+                        >
+                            <p style={{ fontWeight: "bold" }}>{p.name}</p>
+                            <p>{p.role}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

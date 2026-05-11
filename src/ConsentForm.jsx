@@ -8,7 +8,6 @@ const CLAUSES = [
     `I am participating in the Trek/Expedition/Program on my own accord and with due permission of my Parents/Guardian.`,
     `I am major (above the age of 18) and fully fit for mountain travel/hiking and I will carry all the necessary gear required by me in the outdoors for survival.`,
     `I willingly agree to discontinue my participation in the activity if my gear is not found proper or suitable by the trek leader for the activity.`,
-    `I am well aware of COVID-19. I certify that I am Negative for COVID-19, and I will follow all the SoP's strictly.`,
     `If my behaviour during the activity is likely to cause distress or break the norms of the activity by displaying misbehaviour through harming the environment/disturbing the flora & fauna/etc., the member of staff or Trek Leader reserves the right to terminate my participation at any time and I will have to make my own arrangements. Club will not be liable for any expenses incurred as a result and I will be blacklisted from joining any future activity with the club.`,
     `In case of any injury suffered during the course of travel or hike/trek that may result in temporary/permanent incapacitation, death I shall not hold Trek De Kashmir or its members responsible for the same.`,
 ];
