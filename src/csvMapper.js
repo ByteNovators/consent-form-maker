@@ -19,7 +19,7 @@ const FIELD_MAP = {
         "telephone",
         "contact number",
         "phone number",
-        "whatsapp number
+        "whatsapp number"
     ],
     address: ["address", "addr", "residence", "home address"],
     dob: ["dob", "date of birth", "birth date", "birthdate", "dateofbirth"],
