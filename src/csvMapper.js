@@ -48,7 +48,7 @@ const FIELD_MAP = {
         "ec address",
         "emergency address"
     ],
-    aadhaar: ["aadhaar", "aadhar", "aadhaar number", "aadhaar card" "aadhar number", "uid"],
+    aadhaar: ["aadhaar", "aadhar", "aadhaar number", "aadhaar card", "aadhar number", "uid"],
     pickupPoint: ["pickup point", "pickup", "pick up", "pick up point"]
 };
 
