@@ -19,6 +19,7 @@ const FIELD_MAP = {
         "telephone",
         "contact number",
         "phone number",
+        "whatsapp number,
     ],
     address: ["address", "addr", "residence", "home address"],
     dob: ["dob", "date of birth", "birth date", "birthdate", "dateofbirth"],
@@ -33,9 +34,11 @@ const FIELD_MAP = {
         "relationship",
         "relation with emergency contact",
         "emergency relation",
+        "emergency contact relation"
     ],
     emergencyContactNumber: [
         "emergency contact number",
+        "emergency contact phone",
         "ec number",
         "emergency phone",
         "emergency mobile",
@@ -45,7 +48,7 @@ const FIELD_MAP = {
         "ec address",
         "emergency address",
     ],
-    aadhaar: ["aadhaar", "aadhar", "aadhaar number", "aadhar number", "uid"],
+    aadhaar: ["aadhaar", "aadhar", "aadhaar number", "aadhaar card" "aadhar number", "uid"],
     pickupPoint: ["pickup point", "pickup", "pick up", "pick up point"],
 };
 
