@@ -9,7 +9,7 @@ const FIELD_MAP = {
         "father's name",
         "s/o",
         "d/o",
-        "w/o",
+        "w/o"
     ],
     contact: [
         "contact",
@@ -19,7 +19,7 @@ const FIELD_MAP = {
         "telephone",
         "contact number",
         "phone number",
-        "whatsapp number,
+        "whatsapp number
     ],
     address: ["address", "addr", "residence", "home address"],
     dob: ["dob", "date of birth", "birth date", "birthdate", "dateofbirth"],
@@ -27,7 +27,7 @@ const FIELD_MAP = {
         "emergency contact name",
         "emergency name",
         "ec name",
-        "emergency contact",
+        "emergency contact"
     ],
     emergencyRelation: [
         "relation",
@@ -41,15 +41,15 @@ const FIELD_MAP = {
         "emergency contact phone",
         "ec number",
         "emergency phone",
-        "emergency mobile",
+        "emergency mobile"
     ],
     emergencyContactAddress: [
         "emergency contact address",
         "ec address",
-        "emergency address",
+        "emergency address"
     ],
     aadhaar: ["aadhaar", "aadhar", "aadhaar number", "aadhaar card" "aadhar number", "uid"],
-    pickupPoint: ["pickup point", "pickup", "pick up", "pick up point"],
+    pickupPoint: ["pickup point", "pickup", "pick up", "pick up point"]
 };
 
 function normalise(str) {
